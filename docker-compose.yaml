@@ -1,0 +1,26 @@
+version: "3"
+
+services:
+  redis:
+    image: "redis:alpine"
+    restart: always
+
+  aedes_broker:
+    image: charles161/aedes_mqtt_broker:latest
+    restart: always
+    environment:
+      REDIS_HOST: redis
+      WSS_ENABLED: "false"
+      WS_ENABLED: "true"
+    ports:
+      - "1883:7070" #mqtt
+      - "8883:8110" #ws
+    depends_on:
+      - redis
+
+  web:
+    image: nginx
+    volumes:
+      - ./www/.:/usr/share/nginx/html/
+    ports:
+      - "8080:80"
