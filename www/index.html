@@ -183,39 +183,57 @@
                     //client.publish('presence', 'Hello mqtt')
                 }
             })
+            client.subscribe('/tsx/controls', function (err) {
+                if (!err) {
+                    //client.publish('presence', 'Hello mqtt')
+                }
+            })
         })
 
         client.on('message', function (topic, message) {
             // message is Buffer
-            console.log(message.toString())
+            console.log(topic, message.toString())
             try {
                 const data = JSON.parse(message)
-                const y = data["y"]
-                console.log(y)
-                if (y > 0.5) {
-                    keyLeft = true;
-                    console.log("LEFT")
-                } else if (y <= 0.5 && y >= -0.5) {
-                    keyRight = false;
-                    keyLeft = false;
-                } else {
-                    console.log("RIGHT")
-                    keyRight = true;
+                if (topic == "/tsx/3d") {
+                    const y = data["y"]
+                    console.log(y)
+                    if (y > 0.5) {
+                        keyLeft = true;
+                        console.log("LEFT")
+                    } else if (y <= 0.5 && y >= -0.5) {
+                        keyRight = false;
+                        keyLeft = false;
+                    } else {
+                        console.log("RIGHT")
+                        keyRight = true;
+                    }
+
+
+
+                    const z = data["z"]
+                    console.log(y)
+                    if (z > 0.5) {
+                        keyFaster = true;
+                        keySlower = false;
+                        console.log("keyFaster")
+                    } else {
+
+                        keyFaster = false;
+                        keySlower = true;
+                    }
                 }
 
 
-
-                const z = data["z"]
-                console.log(y)
-                if (z > 0.5) {
-                    keyFaster = true;
-                    keySlower = false;
-                    console.log("keyFaster")
-                } else {
-
-                    keyFaster = false;
-                    keySlower = true;
+                if (topic == "/tsx/controls") {
+                    keyFaster = data["keyFaster"];
+                    keySlower = data["keySlower"];
+                    keyLeft = data["keyLeft"];
+                    keyRight = data["keyRight"];
+                    console.log(keyFaster ? "up" : "", keySlower ? "down" : "", keyLeft ? "left" : "", keyRight ? "right" : "")
                 }
+
+
             } catch (e) {
                 console.log("err", e)
             }
